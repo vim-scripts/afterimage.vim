@@ -1,0 +1,9 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1617
+
+This plugin converts PNG and GIF icons to XPM with ImageMagick when edited in vim. XPM is an easy to edit plain text image format (it looks great in gvim, too).  The plugin is handy for quick changes to small icons; bigger files are of course more managable in a traditional image editor.
+
+See a screenshot at http://yfrog.com/37afterimagep .
+
+As a bonus, support is also provided for PDFs, Word documents, and Mac OS X plist files.
+
+http://github.com/tpope/vim-afterimage
