@@ -1,6 +1,6 @@
 " afterimage.vim - Edit binary files by converting them to text
-" Maintainer:   Tim Pope <vimNOSPAM@tpope.org>
-" Version:      2.1
+" Maintainer:   Tim Pope <http://tpo.pe/>
+" Version:      2.2
 
 " Licensed under the same terms as Vim itself.
 
@@ -13,10 +13,12 @@ augroup afterimage
   autocmd!
 
   if !exists("#BufWriteCmd#*.png")
-    autocmd BufReadPre,FileReadPre    *.png,*.gif  setlocal bin
-    autocmd BufReadPost,FileReadPost  *.png,*.gif  if AfterimageReadPost("convert %s xpm:%s")|set ft=xpm|endif|setlocal nobin
+    autocmd BufReadPre,FileReadPre    *.png,*.gif,*.ico  setlocal bin
+    autocmd BufReadPost,FileReadPost  *.png,*.gif        if AfterimageReadPost("convert %s xpm:%s")|set ft=xpm|endif|setlocal nobin
+    autocmd BufReadPost,FileReadPost  *.ico              if AfterimageReadPost("convert ico:%s xpm:%s")|set ft=xpm|endif|setlocal nobin
     autocmd BufWriteCmd,FileWriteCmd  *.png call AfterimageWriteCmd("convert %s png:%s")
     autocmd BufWriteCmd,FileWriteCmd  *.gif call AfterimageWriteCmd("convert %s gif:%s")
+    autocmd BufWriteCmd,FileWriteCmd  *.ico call AfterimageWriteCmd("convert %s ico:%s")
   endif
 
   if !exists("#BufWriteCmd#*.pdf")
@@ -122,7 +124,6 @@ function! AfterimageReadPost(cmd) " {{{1
 endfunction " }}}1
 
 function! AfterimageWriteCmd(cmd) " {{{1
-  " don't do anything if the cmd is not supported
   if s:check(a:cmd)
     let nm = expand("<afile>")
     let tmp1 = tempname()
@@ -147,7 +148,6 @@ endfunction " }}}1
 
 function! s:readplist()
   if getline(1) =~ '<?xml\>'
-    " If already XML, make a note and exit
     let b:plist_format = "xml1"
     setlocal nobin
     return
@@ -159,23 +159,13 @@ function! s:readplist()
   else
     return 0
   endif
-
-  " When converted the whole buffer, do autocommands
-  "if &verbose >= 8
-    "execute         "doau BufReadPost " . expand("%:r") . ".xml"
-  "else
-    "execute "silent! doau BufReadPost " . expand("%:r") . ".xml"
-  "endif
 endfunction
 
 function! s:writeplist()
-  if exists("b:plist_format")
-    call AfterimageWriteCmd("plutil -convert ".b:plist_format." %s -o %s")
-    " I don't know why this is sometimes necessary
-    "if &ft == "xml"
-      "let &syn = &ft
-    "endif
+  if !exists("b:plist_format")
+    let b:plist_format = "xml1"
   endif
+  call AfterimageWriteCmd("plutil -convert ".b:plist_format." %s -o %s")
 endfunction
 
 " }}}1
